@@ -228,7 +228,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def handle_login(self):
         user = self.inp_username.text().strip() # input username
         token = self.inp_token.text().strip() # input pass
-        if user == "u" and token == "p": # HARDCODED , replace with your's
+        if user == "admin" and token == "password": # HARDCODED , replace with your's
             self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
             self.inp_username.clear() # thus clear the input box
             self.inp_token.clear() # thus clear the input box
