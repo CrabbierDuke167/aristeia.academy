@@ -12,8 +12,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv) # boot up PySide6 application
 
 # importing fonts from resource file
-    QFontDatabase.addApplicationFont(":/demo2 images/SpaceGrotesk-VariableFont_wght.ttf")
-    QFontDatabase.addApplicationFont(":/demo2 images/JetBrainsMono-VariableFont_wght.ttf")
+    QFontDatabase.addApplicationFont(":/assets/SpaceGrotesk-VariableFont_wght.ttf")
+    QFontDatabase.addApplicationFont(":/assets/JetBrainsMono-VariableFont_wght.ttf")
 
     window = AristeiaWindow() # AristeiaWindow is the main window
     window.show() # by default it is hidden

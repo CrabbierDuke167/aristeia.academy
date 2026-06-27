@@ -1,0 +1,6 @@
+<RCC>
+  <qresource>
+    <file>assets/JetBrainsMono-VariableFont_wght.ttf</file>
+    <file>assets/SpaceGrotesk-VariableFont_wght.ttf</file>
+  </qresource>
+</RCC>
