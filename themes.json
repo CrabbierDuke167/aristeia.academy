@@ -1,0 +1,42 @@
+{
+    "DARK": {
+        "bg": "#121212",
+        "sidebar": "#1E1E1E",
+        "nav_text": "#FFFFFF",
+        "card_bg": "#2C2C2C",
+        "card_text": "#FFFFFF",
+        "accent": "#FF5E00",
+        "hover": "#FF3333",
+        "checked": "#FF5E00"
+    },
+    "ARGENTINA": {
+        "bg": "#74ACDF",
+        "sidebar": "#FFFFFF",
+        "nav_text": "#000000",
+        "card_bg": "#F6B40E",
+        "card_text": "#000000",
+        "accent": "#FFFFFF",
+        "hover": "#F6B40E",
+        "checked": "#74ACDF"
+    },
+    "BRASIL": {
+        "bg": "#009C3B",
+        "sidebar": "#002776",
+        "nav_text": "#FFFFFF",
+        "card_bg": "#FEDD00",
+        "card_text": "#000000",
+        "accent": "#002776",
+        "hover": "#FEDD00",
+        "checked": "#009C3B"
+    },
+    "PORTUGAL": {
+        "bg": "#FF0000",
+        "sidebar": "#006600",
+        "nav_text": "#FFFFFF",
+        "card_bg": "#FFD700",
+        "card_text": "#000000",
+        "accent": "#006600",
+        "hover": "#FFD700",
+        "checked": "#FF0000"
+    }
+}

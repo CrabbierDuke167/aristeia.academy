@@ -1,16 +1,20 @@
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase
-from frontPage import MySideBar
+from frontPage import AristeiaWindow
+from database import initialize_database # import the initialize_database function from database python file
 
+
+# make sure the app only runs if we run the main.py
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    initialize_database()
 
-    # Note: Ensure the compiled resources_rc.py file is in the same directory,
-    # and that the fonts are correctly referenced.
+    app = QApplication(sys.argv) # boot up PySide6 application
+
+# importing fonts from resource file
     QFontDatabase.addApplicationFont(":/demo2 images/SpaceGrotesk-VariableFont_wght.ttf")
     QFontDatabase.addApplicationFont(":/demo2 images/JetBrainsMono-VariableFont_wght.ttf")
 
-    window = MySideBar()
-    window.show()
-    sys.exit(app.exec())
+    window = AristeiaWindow() # AristeiaWindow is the main window
+    window.show() # by default it is hidden
+    sys.exit(app.exec()) # execute

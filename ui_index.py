@@ -12,7 +12,7 @@ try:
 except ImportError:
     pass  
 
-# --- Helper Functions for Neo-Brutalism ---
+# Helper Functions for Neo-Brutalism 
 def add_shadow(widget, x=4, y=4, color="#000000"):
     shadow = QGraphicsDropShadowEffect(widget)
     shadow.setBlurRadius(0)
@@ -21,7 +21,7 @@ def add_shadow(widget, x=4, y=4, color="#000000"):
     shadow.setColor(QColor(color))
     widget.setGraphicsEffect(shadow)
 
-# --- Global Style Constants ---
+# Global Style Constants
 DOTTED_BG = 'background-image: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\'><circle cx=\'2\' cy=\'2\' r=\'1.5\' fill=\'%23000000\' fill-opacity=\'0.15\'/></svg>"); background-color: #F4F1EB; background-repeat: repeat;'
 
 BASE_BTN_STYLE = """
@@ -34,7 +34,7 @@ QPushButton {
     font-weight: bold;
     border-radius: 0px;
 }
-QPushButton:hover { background-color: #FFFF00; color: #000000; }
+QPushButton:hover { background-color: #D6CFFF; color: #000000; }
 QPushButton:pressed { background-color: #FFD700; color: #000000; }
 """
 
@@ -53,9 +53,16 @@ QLineEdit:focus, QTextEdit:focus, QComboBox:focus {
     background-color: #FFFFCC;
     border: 3px solid #FF5E00;
 }
+QComboBox QAbstractItemView { 
+    background-color: #FFFFFF; 
+    color: #000000; 
+    border: 3px solid #000000; 
+    selection-background-color: #00FFFF;
+    selection-color: #000000;
+}
 """
 
-# --- Custom Neo-Brutalist Popups ---
+# Custom Neo-Brutalist Popups 
 class NeoMessageBox(QDialog):
     def __init__(self, title, message, msg_type="info", parent=None):
         super().__init__(parent)
@@ -148,7 +155,7 @@ class NeoEditDialog(QDialog):
         return self.text_edit.toPlainText().strip()
 
 
-# --- Main Window UI Definition ---
+# Main Window UI Definition
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -167,7 +174,7 @@ class Ui_MainWindow(object):
         self.outer_layout.addWidget(self.outer_stacked_widget)
 
         # ==========================================
-        # --- PAGE 0: LOGIN ---
+        # PAGE 0: LOGIN 
         # ==========================================
         self.page_login = QWidget()
         self.page_login.setStyleSheet(DOTTED_BG)
@@ -220,21 +227,21 @@ class Ui_MainWindow(object):
         self.outer_stacked_widget.addWidget(self.page_login)
 
         # ==========================================
-        # --- PAGE 1: MAIN APPLICATION ---
+        # PAGE 1: MAIN APPLICATION 
         # ==========================================
         self.page_mainapp = QWidget()
         self.mainapp_layout = QHBoxLayout(self.page_mainapp)
         self.mainapp_layout.setContentsMargins(0, 0, 0, 0)
         self.mainapp_layout.setSpacing(0)
 
-        # --- Sidebar ---
+        # Sidebar
         self.icon_text_widget = QWidget(self.page_mainapp)
         self.icon_text_widget.setMinimumSize(QSize(250, 0))
         self.icon_text_widget.setMaximumSize(QSize(250, 16777215))
         self.icon_text_widget.setStyleSheet("""
             QWidget { background-color: #FFFFFF; border-right: 4px solid #000000; }
             QPushButton { background-color: #FFFFFF; color: #000000; border: 4px solid transparent; text-align: left; padding: 12px 20px; font-family: 'Space Grotesk'; font-size: 14pt; font-weight: bold; border-radius: 0px; }
-            QPushButton:hover { background-color: #FFFF00; border-bottom: 4px solid #000000; border-right: 4px solid #000000; color: #000000; }
+            QPushButton:hover { background-color: #26000000; border-bottom: 4px solid #4D000000; border-right: 4px solid #4D000000; color: #000000; }
             QPushButton:checked { background-color: #FF5E00; color: #000000; border: 4px solid #000000; }
         """)
 
@@ -277,8 +284,8 @@ class Ui_MainWindow(object):
 
         self.btn_logout = QPushButton("LOGOUT")
         self.btn_logout.setStyleSheet("""
-            QPushButton { background-color: #FF69B4; color: #000000; border: 4px solid #000000; text-align: left; padding: 12px 20px; font-family: 'Space Grotesk'; font-size: 14pt; font-weight: bold; }
-            QPushButton:hover { background-color: #FF1493; color: #FFFFFF; }
+            QPushButton { background-color: #FF3333; color: #000000; border: 4px solid #000000; text-align: left; padding: 12px 20px; font-family: 'Space Grotesk'; font-size: 14pt; font-weight: bold; }
+            QPushButton:hover { background-color: #CC0000; color: #000000; }
         """)
         self.btn_logout.setCursor(QCursor(Qt.PointingHandCursor))
         add_shadow(self.btn_logout, 4, 4)
@@ -286,13 +293,13 @@ class Ui_MainWindow(object):
 
         self.mainapp_layout.addWidget(self.icon_text_widget)
 
-        # --- Content Area ---
+        # Content Area
         self.content_widget = QWidget(self.page_mainapp)
         self.content_layout = QVBoxLayout(self.content_widget)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
         self.content_layout.setSpacing(0)
 
-        # --- Header ---
+        # Header 
         self.header_widget = QWidget(self.content_widget)
         self.header_widget.setMinimumHeight(80)
         self.header_widget.setStyleSheet("background-color: #FFFFFF; border-bottom: 4px solid #000000;")
@@ -309,7 +316,7 @@ class Ui_MainWindow(object):
 
         self.header_layout.addSpacing(20)
 
-        self.lbl_header_title = QLabel("HELLO, SCHOLAR!")
+        self.lbl_header_title = QLabel("WELCOME, It is going to be INTRESTING!")
         self.lbl_header_title.setObjectName("ThemeText")
         self.lbl_header_title.setFont(QFont("Space Grotesk", 16, QFont.Bold))
         self.lbl_header_title.setStyleSheet("border: none; background: transparent;")
@@ -318,7 +325,7 @@ class Ui_MainWindow(object):
         self.header_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         self.inp_search = QLineEdit()
-        self.inp_search.setPlaceholderText("Search...")
+        self.inp_search.setPlaceholderText("Search for Questions . . .")
         self.inp_search.setMinimumSize(280, 45)
         self.inp_search.setStyleSheet(INPUT_STYLE)
         self.header_layout.addWidget(self.inp_search)
@@ -333,7 +340,7 @@ class Ui_MainWindow(object):
 
         self.content_layout.addWidget(self.header_widget)
 
-        # --- Stacked Widget Container ---
+        # Stacked Widget Container
         self.pages_container = QWidget(self.content_widget)
         self.pages_container.setStyleSheet(DOTTED_BG)
         self.pages_layout = QVBoxLayout(self.pages_container)
@@ -356,8 +363,9 @@ class Ui_MainWindow(object):
 
         MainWindow.setCentralWidget(self.centralwidget)
 
+
         # ==========================================
-        # --- OVERLAY ANSWER DRAWER (Slide from Right) ---
+        # OVERLAY ANSWER DRAWER 
         # ==========================================
         self.answer_drawer = QFrame(self.page_mainapp)
         self.answer_drawer.setFixedWidth(500)
@@ -391,24 +399,31 @@ class Ui_MainWindow(object):
         self.lbl_drawer_diff.setStyleSheet("background: #FFD700; border: 3px solid #000000; padding: 6px; color: #000000;")
         self.drawer_layout.addWidget(self.lbl_drawer_diff)
 
-        # --- Card 1: Question Label (Not directly editable here) ---
+        # Card 1: Question Label (With hidden scroll area)
         self.card_drawer_q = QFrame()
         self.card_drawer_q.setStyleSheet("QFrame { background-color: #F4F1EB; border: 3px solid #000000; }")
         lay_q = QVBoxLayout(self.card_drawer_q)
         lbl_q_head = QLabel("QUESTION:")
         lbl_q_head.setFont(QFont("Space Grotesk", 10, QFont.Bold))
         lbl_q_head.setStyleSheet("color: #555555; border: none; background: transparent;")
+        lay_q.addWidget(lbl_q_head)
+
+        self.scroll_q = QScrollArea()
+        self.scroll_q.setWidgetResizable(True)
+        self.scroll_q.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_q.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_q.setStyleSheet("QScrollArea { border: none; background: transparent; }")
         
         self.lbl_drawer_question = QLabel("Question text goes here...")
         self.lbl_drawer_question.setWordWrap(True)
         self.lbl_drawer_question.setFont(QFont("JetBrains Mono", 11, QFont.Bold))
         self.lbl_drawer_question.setStyleSheet("color: #000000; border: none; background: transparent;")
         
-        lay_q.addWidget(lbl_q_head)
-        lay_q.addWidget(self.lbl_drawer_question)
+        self.scroll_q.setWidget(self.lbl_drawer_question)
+        lay_q.addWidget(self.scroll_q)
         self.drawer_layout.addWidget(self.card_drawer_q)
 
-        # --- Card 2: Answer Text Edit (Directly editable, auto-saved) ---
+        # Card 2: Answer Text Edit (With hidden scrollbars)
         self.card_drawer_a = QFrame()
         self.card_drawer_a.setStyleSheet("QFrame { background-color: #FFFFFF; border: 3px solid #000000; }")
         lay_a = QVBoxLayout(self.card_drawer_a)
@@ -418,11 +433,17 @@ class Ui_MainWindow(object):
         
         self.txt_drawer_answer = QTextEdit()
         self.txt_drawer_answer.setFont(QFont("JetBrains Mono", 11))
+        self.txt_drawer_answer.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.txt_drawer_answer.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.txt_drawer_answer.setStyleSheet("QTextEdit { border: none; background: transparent; color: #000000; } QTextEdit:focus { background: #FFFFCC; }")
         
         lay_a.addWidget(lbl_a_head)
-        lay_a.addWidget(self.txt_drawer_answer, 1)
-        self.drawer_layout.addWidget(self.card_drawer_a, 1)
+        lay_a.addWidget(self.txt_drawer_answer)
+        self.drawer_layout.addWidget(self.card_drawer_a)
+
+        # Force layouts to share height 50/50 evenly
+        self.drawer_layout.setStretchFactor(self.card_drawer_q, 1)
+        self.drawer_layout.setStretchFactor(self.card_drawer_a, 1)
 
         # Action Buttons
         self.drawer_actions_layout = QHBoxLayout()
@@ -442,7 +463,7 @@ class Ui_MainWindow(object):
 
 
     # ==========================================
-    # --- INDIVIDUAL SECTION SETUPS ---
+    # INDIVIDUAL SECTION SETUPS
     # ==========================================
     def _setup_page_home(self):
         self.page_home = QWidget()
@@ -460,17 +481,23 @@ class Ui_MainWindow(object):
         lbl_qotd_title.setObjectName("ThemeCardText")
         lbl_qotd_title.setFont(QFont("Space Grotesk", 14, QFont.Black))
         lbl_qotd_title.setStyleSheet("border: none; background: transparent;")
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet("QScrollArea { background: transparent; border: none; }")
         self.lbl_qotd_text = QLabel("Loading QOTD...")
         self.lbl_qotd_text.setObjectName("ThemeCardText")
-        self.lbl_qotd_text.setFont(QFont("JetBrains Mono", 12))
-        self.lbl_qotd_text.setStyleSheet("border: none; background: transparent;")
+        self.lbl_qotd_text.setFont(QFont("JetBrains Mono", 11))
+        self.lbl_qotd_text.setStyleSheet("border: none; background: transparent; font-weight: 600;")
         self.lbl_qotd_text.setWordWrap(True)
-        self.btn_qotd_view = QPushButton("VIEW ANSWER ->")
+        scroll_area.setWidget(self.lbl_qotd_text)
+        self.btn_qotd_view = QPushButton("VIEW ANSWER ⟶")
         self.btn_qotd_view.setStyleSheet(BASE_BTN_STYLE)
         self.btn_qotd_view.setCursor(QCursor(Qt.PointingHandCursor))
         add_shadow(self.btn_qotd_view, 3, 3)
         lay_qotd.addWidget(lbl_qotd_title)
-        lay_qotd.addWidget(self.lbl_qotd_text, 1)
+        lay_qotd.addWidget(scroll_area, 1)
         lay_qotd.addWidget(self.btn_qotd_view, 0, Qt.AlignRight)
 
         self.card_quote = QFrame()
@@ -478,11 +505,11 @@ class Ui_MainWindow(object):
         self.card_quote.setStyleSheet("QFrame { background-color: #FF5E00; border: 5px solid #000000; }")
         add_shadow(self.card_quote, 6, 6)
         lay_quote = QVBoxLayout(self.card_quote)
-        lbl_quote_title = QLabel("MOTIVATION")
+        lbl_quote_title = QLabel("THE ETHOS")
         lbl_quote_title.setObjectName("ThemeCardText")
         lbl_quote_title.setFont(QFont("Space Grotesk", 14, QFont.Black))
         lbl_quote_title.setStyleSheet("border: none; background: transparent;")
-        self.lbl_quote_text = QLabel('"Discipline is choosing between what you want now and what you want most."')
+        self.lbl_quote_text = QLabel('"Excellence isn\'t a feeling you wait for;\n it is an infrastructure you build. Log the questions,\n track the failures, and outwork the curriculum."')
         self.lbl_quote_text.setObjectName("ThemeCardText")
         self.lbl_quote_text.setFont(QFont("Space Grotesk", 16, QFont.Black))
         self.lbl_quote_text.setStyleSheet("border: none; background: transparent;")
@@ -601,7 +628,7 @@ class Ui_MainWindow(object):
         grid.setSpacing(20)
         self.chart_widgets = []
         chart_colors = ["#8A2BE2", "#00FFFF", "#FFD700", "#FF69B4"]
-        titles = ["DIFFICULTY LEVELS", "CHAPTER MASTERY", "WEEKLY VELOCITY", "RETENTION HEATMAP"]
+        titles = ["DIFFICULTY LEVELS", "CHAPTER MASTERY", "COMPLETION RATIO", "SESSION CLOCK"]
 
         for i in range(4):
             f = QFrame()
@@ -647,7 +674,7 @@ class Ui_MainWindow(object):
         flay.setSpacing(15)
 
         self.inp_task = QLineEdit()
-        self.inp_task.setPlaceholderText("ENTER NEW TASK...")
+        self.inp_task.setPlaceholderText("ENTER NEW TASK . . .")
         self.inp_task.setStyleSheet(INPUT_STYLE)
         
         self.combo_priority = QComboBox()
@@ -713,7 +740,7 @@ class Ui_MainWindow(object):
         self.btn_theme_light = QPushButton("LIGHT")
         self.btn_theme_light.setStyleSheet(BASE_BTN_STYLE)
         self.btn_theme_dark = QPushButton("DARK")
-        self.btn_theme_dark.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#1E1E1E").replace("#000000", "#FFFFFF") + "QPushButton { color: #FFFFFF; border-color: #FFFFFF; }")
+        self.btn_theme_dark.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#625C5C"))
         self.btn_theme_arg = QPushButton("ARGENTINA")
         self.btn_theme_arg.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#74ACDF"))
         self.btn_theme_bra = QPushButton("BRASIL")
@@ -759,11 +786,19 @@ class Ui_MainWindow(object):
         lay_ab.setContentsMargins(25, 25, 25, 25)
         lay_ab.setSpacing(12)
 
-        lbl_ab_head = QLabel("ABOUT US")
+        lbl_ab_head = QLabel("ABOUT  'aristeia.accademy'")
         lbl_ab_head.setObjectName("ThemeCardText")
         lbl_ab_head.setFont(QFont("Space Grotesk", 15, QFont.Black))
         lbl_ab_head.setStyleSheet("border: none; background: transparent;")
-        txt_ab = QLabel("Aristeia Academy is a modern, Neo-Brutalist inspired study application.\nIt connects to a dynamic MySQL database for full CRUD capabilities.")
+        txt_ab = QLabel(
+            "<div style='word-spacing: 6px; line-height: 140%;'>"
+            "Aristeia Academy is an open-source, human-made study application tailored for CBSE Class 12 students.<br>"
+            "Built with Python, PySide6, and Qt Designer, it merges a bold <b>* Neo-Brutalist *</b> design with real-time theme switchability.<br>"
+            "The application connects directly to a MySQL database via mysql.connector, offering full CRUD capabilities for managing<br>"
+            "question banks and tasks, alongside native matplotlib data visualizations integrated straight into the dashboard.<br><br><br>"
+            "Wishing you the best on your journey, from ABHINAV and DIYON"
+            "</div>")
+
         txt_ab.setObjectName("ThemeCardText")
         txt_ab.setWordWrap(True)
         txt_ab.setFont(QFont("JetBrains Mono", 11, QFont.Bold))
@@ -777,7 +812,7 @@ class Ui_MainWindow(object):
         self.f_ver.setStyleSheet("QFrame { background: #F4F1EB; border: 4px dashed #000000; }")
         lay_ver = QVBoxLayout(self.f_ver)
         lay_ver.setContentsMargins(20, 20, 20, 20)
-        lbl_ver = QLabel("VERSION 2.0.0 | © 2026 ARISTEIA ACADEMY")
+        lbl_ver = QLabel("VERSION 1.0.0 (RELEASE) | COPYRIGHT © 2026 | GNU GPL v3 OPEN SOURCE")
         lbl_ver.setObjectName("ThemeCardText")
         lbl_ver.setAlignment(Qt.AlignCenter)
         lbl_ver.setFont(QFont("JetBrains Mono", 10, QFont.Black))
@@ -801,7 +836,7 @@ class Ui_MainWindow(object):
         lay.setSpacing(20)
 
         h_head = QHBoxLayout()
-        self.btn_back_to_sub = QPushButton("<- BACK TO SUBJECTS")
+        self.btn_back_to_sub = QPushButton("⟵ BACK TO SUBJECTS")
         self.btn_back_to_sub.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#00FFFF"))
         self.btn_back_to_sub.setCursor(QCursor(Qt.PointingHandCursor))
         add_shadow(self.btn_back_to_sub, 3, 3)
@@ -835,7 +870,7 @@ class Ui_MainWindow(object):
         lay.setSpacing(20)
 
         h_head = QHBoxLayout()
-        self.btn_back_to_ch = QPushButton("<- BACK TO CHAPTERS")
+        self.btn_back_to_ch = QPushButton("⟵ BACK TO CHAPTERS")
         self.btn_back_to_ch.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#FFD700"))
         self.btn_back_to_ch.setCursor(QCursor(Qt.PointingHandCursor))
         add_shadow(self.btn_back_to_ch, 3, 3)
