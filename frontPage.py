@@ -3,6 +3,7 @@ import json
 import os
 import time
 
+from PySide6 import QtGui
 import matplotlib
 matplotlib.use('QtAgg') # so it wont open its own window, but will embed in PySide6
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg # now Pyside6 consider matplotlib as a widget
@@ -69,6 +70,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
 
         self.btn_nav_home.clicked.connect(self.switch_to_home)
         self.btn_nav_dashboard.clicked.connect(self.switch_to_dashboard)
+        self.btn_nav_dashboard.clicked.connect(self.update_xp_bar) # fixed it
         self.btn_nav_schedule.clicked.connect(self.switch_to_schedule)
         self.btn_nav_settings.clicked.connect(self.switch_to_settings)
 
@@ -117,6 +119,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         self.setup_dashboard_charts() 
         self.populate_upload_chapters(self.combo_subject.currentText())
         self.update_qotd_display() # for question of the day
+        self.update_xp_bar() # for xp bar in dashboard
         self.crud_read_tasks()
 
     # search engine fn
@@ -125,6 +128,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         if not query: return # exit if falsey value
         results = db.search_questions(query) # calls the search question fn
         self.display_questions_list(results, title=f"SEARCH RESULTS: '{query}'")
+        self.inp_search.clear() # clear the search bar after searching
 
     # charts and graphs set up
     def setup_dashboard_charts(self):
@@ -205,9 +209,20 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         for sc in self.canvases: sc.draw() # loop through the 3 charts and draws it with latest data
         
         # Update XP Bar
-        user_data = db.get_user_data()
-        xp = user_data.get('xp', 0) # pull out xp value, if dont exist then its set as 0
-        self.prog_xp.setMaximum(999)
+        # add xp
+    def update_xp_bar(self):
+        self.user_data = db.get_user_data()
+        xp = self.user_data.get('xp', 0) # pull out xp value, if dont exist then its set as 0
+        self.prog_xp.setMaximum(999) # MAX VALUE logically
+        self.prog_xp.setValue(xp) # set value of the progress bar
+        self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 999)") # update the current xp count of the QLabel
+    
+    
+        # substract xp
+    def update_xp_bar(self):
+        self.user_data = db.get_user_data()
+        xp = self.user_data.get('xp', 0) # pull out xp value, if dont exist then its set as 0
+        self.prog_xp.setMaximum(999) # MAX VALUE logically
         self.prog_xp.setValue(xp) # set value of the progress bar
         self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 999)") # update the current xp count of the QLabel
 
@@ -228,7 +243,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def handle_login(self):
         user = self.inp_username.text().strip() # input username
         token = self.inp_token.text().strip() # input pass
-        if user == "admin" and token == "password": # HARDCODED , replace with your's
+        if user == "" and token == "": # HARDCODED , replace with your's
             self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
             self.inp_username.clear() # thus clear the input box
             self.inp_token.clear() # thus clear the input box
@@ -282,6 +297,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         if success: # success become true if successfully uploaded
             self.txt_upload_q.clear() # clear the inputBox
             self.update_qotd_display() # renders the latest Q as QOTD
+            self.update_xp_bar() # update the xp bar in dashboard
             NeoMessageBox("Success", f"Uploaded Question to {ch}!", "success", self).exec() # success message
 
             if self.app_stacked_widget.currentIndex() == 5 and self.active_chapter_view == ch:
@@ -415,7 +431,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
 
     def close_drawer(self):
         if self.drawer_open:
-            # ---> AUTO SAVE LOGIC FOR ANSWER TEXT EDIT <---
+            # AUTO save LOGIC  
             if self.current_drawer_q_id:
                 new_ans = self.txt_drawer_answer.toPlainText().strip()
                 db.update_question_answer(self.current_drawer_q_id, new_ans)
@@ -431,6 +447,10 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             self.anim.setEasingCurve(QEasingCurve.InExpo)
             self.anim.finished.connect(self.answer_drawer.hide) # hide the drawer on closing
             self.anim.finished.connect(self._refresh_drawer_parent) # call fn to update the page underneath as the drawer closes
+            
+            self.update_qotd_display()
+            self.update_xp_bar() # xp bug fixed yehh
+
             self.anim.start() # start the slider motion
             self.drawer_open = False # update boolean state of drawer
 
@@ -455,6 +475,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
 
             db.update_question_text(self.current_drawer_q_id, new_q) # fn defined in database.py
             self.lbl_drawer_question.setText(new_q) # updated question
+            self.update_qotd_display() # if it was used as QOTD then update it
             NeoMessageBox("Success", "Question Updated Successfully!", "success", self).exec()
             
             if self.active_chapter_view:
@@ -469,6 +490,8 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         NeoMessageBox("Deleted", "Question Deleted.", "warning", self).exec()
         self.close_drawer() # close the question drawer as the question no longer exist
         self.update_qotd_display() # if it was used as QOTD then update it with new QOTD
+        self.update_xp_bar() # fixddd
+        
         
         if self.active_chapter_view:
             self.open_questions(self.active_chapter_view) # clear RAM and re draw the elements in bg
@@ -610,12 +633,15 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         # Update Sidebar
         checked_col = t.get('checked', '#FF5E00') # default orange if not found
         
+        checked_text_col = '#FF5E00' if checked_col not in ['#74ACDF', '#009C3B', '#FF0000', '#006600', '#FF5E00'] else '#FFFFFF'
+        
         # style accroding to data in JSON file
+        hover_style = "background-color: #26000000; color: #000000; border-bottom: 4px solid #4D000000; border-right: 4px solid #4D000000;" if QtGui.QColor(t['sidebar']).lightness() > 128 else "background-color: rgba(255, 255, 255, 0.15); color: #FFFFFF; border-bottom: 4px solid rgba(255, 255, 255, 0.2); border-right: 4px solid rgba(255, 255, 255, 0.2);"
         self.icon_text_widget.setStyleSheet(f"""
             QWidget {{ background-color: {t['sidebar']}; border-right: 4px solid #000000; }}
             QPushButton {{ background-color: {t['sidebar']}; color: {t['nav_text']}; border: 4px solid transparent; text-align: left; padding: 12px 20px; font-family: 'Space Grotesk'; font-size: 14pt; font-weight: bold; border-radius: 0px; }}
-            QPushButton:hover {{ background-color: #FFFF00; border-bottom: 4px solid #000000; border-right: 4px solid #000000; color: #000000; padding-left: 30px; }}
-            QPushButton:checked {{ background-color: {checked_col}; color: #000000 if checked_col not in ['#74ACDF', '#009C3B', '#FF0000', '#006600', '#FF5E00'] else '#FFFFFF'; border: 4px solid #000000; }}
+            QPushButton:hover {{ {hover_style} }}
+            QPushButton:checked {{ background-color: {checked_col}; color: {checked_text_col}; border: 4px solid #000000; }}
         """)
         self.lbl_app_title.setStyleSheet(f"border: none; padding-left: 10px; color: {t['nav_text']}; background: transparent;")
 

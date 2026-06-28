@@ -187,9 +187,11 @@ def initialize_database():
     print("===================================")
 
 # CRUD for Questions 
+# ADD questions
 def add_question(sub_name, ch_name, q, a, diff): # here a: answer column is nullable
     conn = get_database_connection()
     if not conn: return False
+    cursor = None # init cursor to avoid finally block crash
     try:
         cursor = conn.cursor()
         cursor.execute("SELECT subject_id FROM subjects WHERE subject_name = %s", (sub_name,)) # we will pass the argument for subject_name from the selected data of dropdown in the ui
@@ -216,14 +218,17 @@ def add_question(sub_name, ch_name, q, a, diff): # here a: answer column is null
         elif diff.upper() == "HARD": xp_gain = 5
         cursor.execute("UPDATE user_data SET xp = xp + %s WHERE user_data_id = 1", (xp_gain,))
         
-        conn.commit() # reflect the changes after DML
+        # reflect the changes after DML
+        conn.commit() 
         return True # all the processes ran successfully
     except Error as e:
+        if conn: conn.rollback() # FIX: undo partial inserts if things break midway
         print("Error adding question:", e)
         return False # didnot ran successfully
     finally:
-        cursor.close() # clean up
-        conn.close()   # clean up
+        if cursor: cursor.close() # clean up (if curson is truthy)
+        if conn: conn.close()   # clean up (if curson is truthy)
+
 
 # function to get all the questions of the chapter selected by user, for home page : after clikcing the chapter card 
 # returns a list of data about stored questions, if no questions then empty list
@@ -336,20 +341,39 @@ def update_question_answer(q_id, new_a): # to edit the existing answers
         cursor.close() # clean up
         conn.close()   # clean up
 
+# CRUD DELETE question
 def delete_question(q_id): # to permanently delete the question
     conn = get_database_connection()
     if not conn: return False
+    cursor = None # init cursor to avoid finally block crash
     try:
         cursor = conn.cursor()
+        
+        # fetch difficulty before deleting so we know how much XP to drop
+        cursor.execute("SELECT difficulty FROM questions WHERE question_id = %s", (q_id,))
+        q_res = cursor.fetchone()
+        if not q_res: return False # exit if question doesn't exist
+        diff = q_res[0]
+        
         cursor.execute("DELETE FROM questions WHERE question_id = %s", (q_id,))
+        
+        # update xp (we dont make new rows, only update the one and only one row in the user_data table)
+        # to calculate xp we use simple logic based on the difficulty of the added question.
+
+        xp_loss = 1 # default difficulty is EASY ie -1 xp
+        if diff.upper() == "MODERATE": xp_loss = 3 
+        elif diff.upper() == "HARD": xp_loss = 5 
+        cursor.execute("UPDATE user_data SET xp = xp - %s WHERE user_data_id = 1", (xp_loss,)) # loss as argument
+        
         conn.commit() # reflect the change
         return True # success
     except Error as e:
+        if conn: conn.rollback() # undo delete if XP update fails , tnx stackoverflow ...
         print("Error deleting question:", e)
         return False # failed
     finally:
-        cursor.close() # clean up
-        conn.close()   # clean up
+        if cursor: cursor.close() # clean up (if curson is truthy)
+        if conn: conn.close()   # clean up (if curson is truthy)
 
 # CRUD for Tasks
 

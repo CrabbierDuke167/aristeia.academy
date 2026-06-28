@@ -1,6 +1,16 @@
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase
+from PySide6.QtCore import qInstallMessageHandler, QtMsgType
+
+# tnx stackoverflow ...
+def silence_pixmap_errors(msg_type: QtMsgType, context, message: str):
+    if "Could not create pixmap" in message:
+        return  # Swallows it silently 
+    print(message)  # Keeps other errors visible
+
+qInstallMessageHandler(silence_pixmap_errors)
+
 from frontPage import AristeiaWindow
 from database import initialize_database # import the initialize_database function from database python file
 

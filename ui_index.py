@@ -5,7 +5,7 @@ from PySide6.QtGui import (QColor, QFont, QIcon, QPixmap, QCursor)
 from PySide6.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
                                QPushButton, QSizePolicy, QSpacerItem, QStackedWidget,
                                QVBoxLayout, QWidget, QFrame, QScrollArea, QComboBox, QTextEdit,
-                               QProgressBar, QGraphicsDropShadowEffect, QDialog, QVBoxLayout)
+                               QProgressBar, QGraphicsDropShadowEffect, QDialog, QVBoxLayout,QHBoxLayout, QSplitter)
 
 try:
     import resources_rc
@@ -399,7 +399,15 @@ class Ui_MainWindow(object):
         self.lbl_drawer_diff.setStyleSheet("background: #FFD700; border: 3px solid #000000; padding: 6px; color: #000000;")
         self.drawer_layout.addWidget(self.lbl_drawer_diff)
 
-        # Card 1: Question Label (With hidden scroll area)
+        self.drawer_splitter = QSplitter(Qt.Vertical)
+        self.drawer_splitter.setStyleSheet("""
+            QSplitter::handle {
+                background-color: #000000;
+                height: 4px;
+                margin: 4px 0px;
+            }
+        """)
+
         self.card_drawer_q = QFrame()
         self.card_drawer_q.setStyleSheet("QFrame { background-color: #F4F1EB; border: 3px solid #000000; }")
         lay_q = QVBoxLayout(self.card_drawer_q)
@@ -418,12 +426,11 @@ class Ui_MainWindow(object):
         self.lbl_drawer_question.setWordWrap(True)
         self.lbl_drawer_question.setFont(QFont("JetBrains Mono", 11, QFont.Bold))
         self.lbl_drawer_question.setStyleSheet("color: #000000; border: none; background: transparent;")
+        self.lbl_drawer_question.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         
         self.scroll_q.setWidget(self.lbl_drawer_question)
         lay_q.addWidget(self.scroll_q)
-        self.drawer_layout.addWidget(self.card_drawer_q)
 
-        # Card 2: Answer Text Edit (With hidden scrollbars)
         self.card_drawer_a = QFrame()
         self.card_drawer_a.setStyleSheet("QFrame { background-color: #FFFFFF; border: 3px solid #000000; }")
         lay_a = QVBoxLayout(self.card_drawer_a)
@@ -439,13 +446,12 @@ class Ui_MainWindow(object):
         
         lay_a.addWidget(lbl_a_head)
         lay_a.addWidget(self.txt_drawer_answer)
-        self.drawer_layout.addWidget(self.card_drawer_a)
 
-        # Force layouts to share height 50/50 evenly
-        self.drawer_layout.setStretchFactor(self.card_drawer_q, 1)
-        self.drawer_layout.setStretchFactor(self.card_drawer_a, 1)
+        self.drawer_splitter.addWidget(self.card_drawer_q)
+        self.drawer_splitter.addWidget(self.card_drawer_a)
+        self.drawer_splitter.setSizes([250, 250])
+        self.drawer_layout.addWidget(self.drawer_splitter)
 
-        # Action Buttons
         self.drawer_actions_layout = QHBoxLayout()
         self.btn_drawer_edit = QPushButton("EDIT QUESTION")
         self.btn_drawer_edit.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#00FFFF"))
@@ -485,6 +491,7 @@ class Ui_MainWindow(object):
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.NoFrame)
         scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll_area.setStyleSheet("QScrollArea { background: transparent; border: none; }")
         self.lbl_qotd_text = QLabel("Loading QOTD...")
         self.lbl_qotd_text.setObjectName("ThemeCardText")
