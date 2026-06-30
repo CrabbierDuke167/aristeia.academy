@@ -232,10 +232,19 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         q = db.get_latest_question() # fn call
         if q: # if exists
             self.lbl_qotd_text.setText(f"Subject: {q['sub']} | Chapter: {q['ch']}\n\n{q['q']}") # card title text
-            self.btn_qotd_view.clicked.disconnect() # disconnected the btn first for safety
+            try:
+                self.btn_qotd_view.clicked.disconnect() # disconnected the btn first for safety
+            except RuntimeError:
+                pass # do nothin
             self.btn_qotd_view.clicked.connect(lambda checked=False, target=q: self.open_drawer(target)) # toggle drawer ON
+            self.btn_qotd_view.show() # show the btn , its hidden if db is empty
         else:
             self.lbl_qotd_text.setText("No questions added yet. Be the first!")
+            try:
+                self.btn_qotd_view.clicked.disconnect() 
+            except RuntimeError:
+                pass
+            self.btn_qotd_view.hide() # hide the btn if db is empty
 
 
 
@@ -243,7 +252,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def handle_login(self):
         user = self.inp_username.text().strip() # input username
         token = self.inp_token.text().strip() # input pass
-        if user == "" and token == "": # HARDCODED , replace with your's
+        if user == "admin" and token == "password": # HARDCODED , replace with your's
             self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
             self.inp_username.clear() # thus clear the input box
             self.inp_token.clear() # thus clear the input box
@@ -488,6 +497,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         db.delete_question(self.current_drawer_q_id) # fn defined in database.py
         
         NeoMessageBox("Deleted", "Question Deleted.", "warning", self).exec()
+        self.current_drawer_q_id = None # reset the current question id as it no longer exist
         self.close_drawer() # close the question drawer as the question no longer exist
         self.update_qotd_display() # if it was used as QOTD then update it with new QOTD
         self.update_xp_bar() # fixddd
