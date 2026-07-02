@@ -62,7 +62,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         # Base style backups for LIGHT theme reset
         self.default_sidebar_style = self.icon_text_widget.styleSheet()
         self.default_pages_style = self.pages_container.styleSheet()
-        
+
         # Connect Page Navigation Signals
         # onclicking buttons the respective page switch fn is called
         self.btn_login.clicked.connect(self.handle_login) # Auth 
@@ -233,8 +233,9 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         if q: # if exists
             self.lbl_qotd_text.setText(f"Subject: {q['sub']} | Chapter: {q['ch']}\n\n{q['q']}") # card title text
             try:
+                # We disconnect by fetching the receiver count or catching any base Exception
                 self.btn_qotd_view.clicked.disconnect() # disconnected the btn first for safety
-            except RuntimeError:
+            except (RuntimeError, TypeError):
                 pass # do nothin
             self.btn_qotd_view.clicked.connect(lambda checked=False, target=q: self.open_drawer(target)) # toggle drawer ON
             self.btn_qotd_view.show() # show the btn , its hidden if db is empty
@@ -242,25 +243,48 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             self.lbl_qotd_text.setText("No questions added yet. Be the first!")
             try:
                 self.btn_qotd_view.clicked.disconnect() 
-            except RuntimeError:
+            except (RuntimeError, TypeError):
                 pass
             self.btn_qotd_view.hide() # hide the btn if db is empty
 
 
 
-    # very basic AUTH LOGIC !!!!!
     def handle_login(self):
-        user = self.inp_username.text().strip() # input username
-        token = self.inp_token.text().strip() # input pass
-        if user == "admin" and token == "password": # HARDCODED , replace with your's
-            self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
-            self.inp_username.clear() # thus clear the input box
-            self.inp_token.clear() # thus clear the input box
-            self.outer_stacked_widget.setCurrentIndex(1) # pull to page index 1 ie, main page
-            self.session_timer.start(1000) # start session timer on login
-            self.switch_to_home() # now home is the main page on login
-        else:
-            self.lbl_login_error.setText("INVALID CREDENTIALS") # error message
+        try:
+            user = self.inp_username.text().strip() # input username
+            token = self.inp_token.text().strip() # input pass
+            
+            if user == "admin" and token == "password": # HARDCODED , replace with your's
+                self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
+                self.inp_username.clear() # thus clear the input box
+                self.inp_token.clear() # thus clear the input box
+                self.outer_stacked_widget.setCurrentIndex(1) # pull to page index 1 ie, main page
+                self.session_timer.start(1000) # start session timer on login
+                self.switch_to_home() # now home is the main page on login
+                
+                # on login repaint the appp
+                try:
+                    # user data from DB
+                    user_data = db.get_user_data() # runs immediately
+                    if user_data: # if exist (truthy)
+                        # 'default' if the key doesn't exist
+                        theme = user_data.get('current_theme', 'LIGHT') # get the current theme from the user_data table, if not exist then default to LIGHT
+                        self.apply_theme(theme) # applys current theme value in the row
+                    else:
+                        self.apply_theme('LIGHT') # fallback if user_data is emty
+                except Exception:
+                    # If DB fails or apply_theme crashes, apply default theme so login succeeds anyway
+                    try: # tries again
+                        self.apply_theme('LIGHT')
+                    except Exception:
+                        pass 
+
+            else:
+                self.lbl_login_error.setText("INVALID CREDENTIALS") # error message
+            
+        except Exception:
+            # the whole app shudnt crash if ui fail
+            self.lbl_login_error.setText("AN UNEXPECTED ERROR OCCURRED")
 
     def handle_logout(self):
         self.outer_stacked_widget.setCurrentIndex(0) # kick to page index 0 ie, login page
@@ -727,9 +751,9 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             # style according to newly picked accent.
             THEMED_BTN_STYLE = f"""
                 QPushButton {{
-                    background-color: #000000; 
+                    background-color: transparent; 
                     color: #FFFFFF; 
-                    border: 3px solid #000000;
+                    border: 3px solid transparent;
                     padding: 10px;
                     font-family: 'Space Grotesk';
                     font-weight: bold;
@@ -739,8 +763,14 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
                     color: #000000;
                 }}
             """
-            self.btn_upload.setStyleSheet(THEMED_BTN_STYLE)
-            self.btn_add_task.setStyleSheet(THEMED_BTN_STYLE)
+
+            self.btn_upload.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
+            self.btn_add_task.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
+            self.btn_qotd_view.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
+            self.btn_nav_home.setStyleSheet(THEMED_BTN_STYLE)
+            self.btn_nav_dashboard.setStyleSheet(THEMED_BTN_STYLE)
+            self.btn_nav_schedule.setStyleSheet(THEMED_BTN_STYLE)
+            self.btn_nav_settings.setStyleSheet(THEMED_BTN_STYLE)
 
     # APP WINDOW resizing LOGIC
 
