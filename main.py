@@ -28,7 +28,7 @@ if __name__ == "__main__":
     window = AristeiaWindow() # AristeiaWindow is the main window
     
     # finds the logo in assets folder in the parent folder
-    window.setWindowIcon(QIcon(str(Path(__file__).parent / "assets" / "aristeia_logo.png")))
+    window.setWindowIcon(QIcon(str(Path(__file__).parent / "assets" / "aristeia_app_logo.png")))
 
     window.show() # by default it is hidden
     sys.exit(app.exec()) # execute

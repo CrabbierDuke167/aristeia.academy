@@ -1,3 +1,4 @@
+# BACKEND DATABASE LOGIC
 import mysql.connector
 from mysql.connector import Error # catch errors from mysql
 

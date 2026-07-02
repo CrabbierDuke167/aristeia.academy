@@ -20,6 +20,6 @@ Set-ExecutionPolicy Bypass -Scope Process
 
 OR
 
-in admin ps
+in admin PS
 Set-ExecutionPolicy RemoteSigned -Force
 Get-ExecutionPolicy -List

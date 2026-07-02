@@ -249,6 +249,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
 
 
 
+    # very basic Auth logic !!!!!
     def handle_login(self):
         try:
             user = self.inp_username.text().strip() # input username
@@ -764,9 +765,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
                 }}
             """
 
-            self.btn_upload.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
-            self.btn_add_task.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
-            self.btn_qotd_view.setStyleSheet(THEMED_BTN_STYLE + " QPushButton { border: 3px solid #000000;}")
+            # replace default accent color with the new one
             self.btn_nav_home.setStyleSheet(THEMED_BTN_STYLE)
             self.btn_nav_dashboard.setStyleSheet(THEMED_BTN_STYLE)
             self.btn_nav_schedule.setStyleSheet(THEMED_BTN_STYLE)

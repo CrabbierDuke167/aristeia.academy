@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# complied from QtDesigner's human-made design
 import sys
 from PySide6.QtCore import (QCoreApplication, QSize, Qt, QRect, QPropertyAnimation, QEasingCurve)
 from PySide6.QtGui import (QColor, QFont, QIcon, QPixmap, QCursor)
