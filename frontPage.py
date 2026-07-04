@@ -195,15 +195,56 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         ax1.tick_params(colors='black')
         for spine in ax1.spines.values(): spine.set_edgecolor('black'); spine.set_linewidth(3)
 
-        # Graph 3: Answered vs Unanswered Pie Chart
+        # Graph 3: Completion Meter
         ax2 = self.canvases[2].axes # 2 mean 3rd graph
         ax2.clear() # clears old graphs
-        ans_data = [stats['answered_ratio']['Answered'], stats['answered_ratio']['Unanswered']] # gets both vales from stats from our db
-        if sum(ans_data) > 0:
-            ax2.pie(ans_data, labels=['Ans', 'Unans'], colors=['#33FF55', '#FF3333'], 
-                    wedgeprops={'edgecolor': 'black', 'linewidth': 3}, textprops={'color': 'black', 'fontweight': 'bold'})
-        else: # if sum of ans_data not greater than 0
-            ax2.text(0.5, 0.5, 'No Data', horizontalalignment='center', verticalalignment='center', color='black')
+
+        ans = stats['answered_ratio']['Answered'] # grab nums
+        unans = stats['answered_ratio']['Unanswered']
+        total = ans + unans # no brainer
+        
+        # styles
+        bg_color = '#F4F4F0'  
+        fill_color = '#C4F135' 
+        empty_color = '#FFFFFF'   
+        shadow_color = '#000000' 
+        line_w = 3   
+        
+        ax2.set_facecolor(bg_color)
+
+        if total > 0:
+            percent = (ans / total) * 100 # completion %
+            ax2.barh([-0.06], [100], left=1.2, color=shadow_color, height=0.6)
+            ax2.barh([0], [100], color=empty_color, edgecolor=shadow_color, linewidth=line_w, height=0.6)
+            ax2.barh([0], [percent], color=fill_color, edgecolor=shadow_color, linewidth=line_w, height=0.6)
+            ax2.text(50, 0, f'{percent:.1f}%', ha='center', va='center',
+                     fontsize=22, fontweight='black', fontfamily='monospace', color='black')
+            bbox_done = dict(boxstyle='square,pad=0.4', facecolor=fill_color, edgecolor='black', linewidth=2)
+            ax2.text(0, -0.85, f'ANS : {ans}', ha='left', va='center',
+                     fontsize=11, fontweight='black', fontfamily='monospace', color='black', bbox=bbox_done)
+            bbox_left = dict(boxstyle='square,pad=0.4', facecolor='#FF4E4E', edgecolor='black', linewidth=2)
+            ax2.text(100, -0.85, f'UNANS : {unans}', ha='right', va='center',
+                     fontsize=11, fontweight='black', fontfamily='monospace', color='black', bbox=bbox_left)
+            ax2.set_xlim(-5, 105) 
+            ax2.set_ylim(-1.3, 0.7) 
+            ax2.set_xticks([])
+            ax2.set_yticks([])
+            for spine in ax2.spines.values():
+                spine.set_visible(False)
+        else: # if no questions exist
+            #'No Data' state
+            bbox_nodata = dict(boxstyle='square,pad=0.6', facecolor='#FFFFFF', edgecolor='black', linewidth=3)
+            ax2.text(0.51, 0.48, ' NO DATA ', ha='center', va='center', color='black',
+                     fontsize=16, fontweight='black', fontfamily='monospace', 
+                     bbox=dict(boxstyle='square,pad=0.6', facecolor='black', edgecolor='black'))
+            # Actual no-data box
+            ax2.text(0.5, 0.5, ' NO DATA ', ha='center', va='center', color='black',
+                     fontsize=16, fontweight='black', fontfamily='monospace', bbox=bbox_nodata)
+            
+            ax2.set_xticks([])
+            ax2.set_yticks([])
+            for spine in ax2.spines.values():
+                spine.set_visible(False)
 
         # Draw updates
         for sc in self.canvases: sc.draw() # loop through the 3 charts and draws it with latest data
@@ -213,18 +254,18 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def update_xp_bar(self):
         self.user_data = db.get_user_data()
         xp = self.user_data.get('xp', 0) # pull out xp value, if dont exist then its set as 0
-        self.prog_xp.setMaximum(999) # MAX VALUE logically
+        self.prog_xp.setMaximum(10000) # MAX VALUE logically
         self.prog_xp.setValue(xp) # set value of the progress bar
-        self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 999)") # update the current xp count of the QLabel
-    
-    
+        self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 10000)") # update the current xp count of the QLabel
+
+
         # substract xp
     def update_xp_bar(self):
         self.user_data = db.get_user_data()
         xp = self.user_data.get('xp', 0) # pull out xp value, if dont exist then its set as 0
-        self.prog_xp.setMaximum(999) # MAX VALUE logically
+        self.prog_xp.setMaximum(10000) # MAX VALUE logically
         self.prog_xp.setValue(xp) # set value of the progress bar
-        self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 999)") # update the current xp count of the QLabel
+        self.xp_frame.findChild(QLabel, "ThemeCardText").setText(f"SCHOLAR XP ({xp} / 10000)") # update the current xp count of the QLabel
 
 
     def update_qotd_display(self):
@@ -234,7 +275,8 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             self.lbl_qotd_text.setText(f"Subject: {q['sub']} | Chapter: {q['ch']}\n\n{q['q']}") # card title text
             try:
                 # We disconnect by fetching the receiver count or catching any base Exception
-                self.btn_qotd_view.clicked.disconnect() # disconnected the btn first for safety
+                if self.receivers(self.btn_qotd_view.clicked) > 0:
+                    self.btn_qotd_view.clicked.disconnect() # disconnected the btn first for safety
             except (RuntimeError, TypeError):
                 pass # do nothin
             self.btn_qotd_view.clicked.connect(lambda checked=False, target=q: self.open_drawer(target)) # toggle drawer ON
@@ -242,7 +284,8 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         else:
             self.lbl_qotd_text.setText("No questions added yet. Be the first!")
             try:
-                self.btn_qotd_view.clicked.disconnect() 
+                if self.receivers(self.btn_qotd_view.clicked) > 0:
+                    self.btn_qotd_view.clicked.disconnect() 
             except (RuntimeError, TypeError):
                 pass
             self.btn_qotd_view.hide() # hide the btn if db is empty
@@ -255,7 +298,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             user = self.inp_username.text().strip() # input username
             token = self.inp_token.text().strip() # input pass
             
-            if user == "admin" and token == "password": # HARDCODED , replace with your's
+            if user == "diyon" and token == "aristeia": # HARDCODED , replace with your's
                 self.lbl_login_error.setText("") # clear out the invalid credentials error message if any
                 self.inp_username.clear() # thus clear the input box
                 self.inp_token.clear() # thus clear the input box
@@ -420,6 +463,32 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
                 lbl_diff.setFixedHeight(35) # fixed height, so it wont grow too tall
                 lbl_diff.setAlignment(Qt.AlignCenter)
 
+                is_done_val = q_data.get("is_done", 0) # get is_done from questions_data, default
+                btn_q_done = QPushButton("DONE ✓" if is_done_val == 1 else "UNDONE") # undone by default
+                btn_q_done.setCheckable(True) # toggleable
+                btn_q_done.setChecked(is_done_val == 1)
+                btn_q_done.setFont(QFont("Space Grotesk", 10, QFont.Bold))
+                btn_q_done.setFixedHeight(35)
+                btn_q_done.setCursor(QCursor(Qt.PointingHandCursor))
+                add_shadow(btn_q_done, 2, 2)  
+                btn_q_done.setStyleSheet("""
+                    QPushButton {
+                        background-color: #FF6B6B;
+                        color: #000000;
+                        border: 2px solid #000000;
+                        padding: 6px 12px;
+                    }
+                    QPushButton:checked {
+                        background-color: #00FF66;
+                    }
+                """)
+                # get question id and diff from q_data dict
+                # uses q_data.get("id") if db provides an ID, else falls back to  question text
+                btn_q_done.toggled.connect(
+                    lambda checked, q=q_data.get("id", q_data["q"]), d=q_data["diff"], b=btn_q_done: 
+                        self.handle_q_toggle_change(checked, q, d, b) # calls the fn to update the db with the new status of the question
+                )
+
                 btn_view = QPushButton("VIEW ANSWER ➔")
                 btn_view.setStyleSheet(BASE_BTN_STYLE.replace("#FFFFFF", "#8A2BE2") + "QPushButton { color: white; }")
                 btn_view.setCursor(QCursor(Qt.PointingHandCursor))
@@ -428,6 +497,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
 
                 qlay.addWidget(lbl, 1)
                 qlay.addWidget(lbl_diff)
+                qlay.addWidget(btn_q_done)
                 qlay.addWidget(btn_view)
                 self.lay_q_list.addWidget(q_card)
 
@@ -492,10 +562,22 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
         if getattr(self, 'active_chapter_view', None): # check if we have a chapter opened underneath
             self.open_questions(self.active_chapter_view) # if so then refetch and rebuild the question cards so changes are reflected in ui
 
+    # handle the toggle btn for xp change
+    def handle_q_toggle_change(self, checked, q_id, diff, btn):
+        # update the btn text
+        btn.setText("DONE ✓" if checked else "UNDONE")
+        # call teh fn defined in our db.
+        success = db.toggle_question_status(q_id, checked, diff)
+        if not success:
+            print(f"Failed to sync status for Q-ID: {q_id}") # catch em
+            # rollback  UI state since db update failed
+            btn.blockSignals(True) # aint no signals to prevent infinite loop
+            btn.setChecked(not checked)
+            btn.setText("DONE ✓" if not checked else "UNDONE")
+            btn.blockSignals(False)
 
 
     # DRAWER CRUD FNs
-
     def crud_edit_question(self):
         """Opens Custom UI to edit the Question Text."""
         if not self.current_drawer_q_id: return # if didnt get the id then exit
@@ -625,7 +707,11 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def apply_theme(self, theme_name):
         self.current_theme = theme_name # grabs current theme
         db.update_theme(theme_name) # update the user_data's current_theme column value
-        
+        self.btn_nav_home.setStyleSheet("")
+        self.btn_nav_dashboard.setStyleSheet("")
+        self.btn_nav_schedule.setStyleSheet("")
+        self.btn_nav_settings.setStyleSheet("")
+                
         if theme_name == "LIGHT" or theme_name not in self.themes_data: # theme_data is a dict of all prebuilt themes from themes.json afte we parsed it
             # RESET TO DEFAULTS
             self.icon_text_widget.setStyleSheet(self.default_sidebar_style)

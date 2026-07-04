@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase, QIcon
 from PySide6.QtCore import qInstallMessageHandler, QtMsgType
 
-# tnx stackoverflow ...
+# tnx stackoverflow ....
 def silence_pixmap_errors(msg_type: QtMsgType, context, message: str):
     if "Could not create pixmap" in message:
         return  # Swallows it silently 

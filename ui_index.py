@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # complied from QtDesigner's human-made design
 import sys
+from pathlib import Path
 from PySide6.QtCore import (QCoreApplication, QSize, Qt, QRect, QPropertyAnimation, QEasingCurve)
 from PySide6.QtGui import (QColor, QFont, QIcon, QPixmap, QCursor)
 from PySide6.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
@@ -636,7 +637,7 @@ class Ui_MainWindow(object):
         grid.setSpacing(20)
         self.chart_widgets = []
         chart_colors = ["#8A2BE2", "#00FFFF", "#FFD700", "#FF69B4"]
-        titles = ["DIFFICULTY LEVELS", "CHAPTER MASTERY", "COMPLETION RATIO", "SESSION CLOCK"]
+        titles = ["DIFFICULTY LEVELS", "CHAPTER MASTERY", "ATTEMPT PERCENTAGE", "SESSION CLOCK"]
 
         for i in range(4):
             f = QFrame()
@@ -900,7 +901,7 @@ class Ui_MainWindow(object):
         self.q_container = QWidget()
         self.q_container.setStyleSheet("background: transparent;")
         self.lay_q_list = QVBoxLayout(self.q_container)
-        self.lay_q_list.setSpacing(15)
+        self.lay_q_list.setSpacing(25)
         self.lay_q_list.setAlignment(Qt.AlignTop)
         self.scroll_q.setWidget(self.q_container)
         lay.addWidget(self.scroll_q, 1)

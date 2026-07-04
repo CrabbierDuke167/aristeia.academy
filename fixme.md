@@ -23,3 +23,5 @@ OR
 in admin PS
 Set-ExecutionPolicy RemoteSigned -Force
 Get-ExecutionPolicy -List
+
+# GG

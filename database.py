@@ -1,6 +1,7 @@
 # BACKEND DATABASE LOGIC
 import mysql.connector
 from mysql.connector import Error # catch errors from mysql
+from setup_questions import load_default_questions
 
 DATABASE_NAME = "aristeiaDB"  # REPLACE WITH YOUR DB name
 SUBJECTS = {
@@ -98,18 +99,21 @@ def create_tables():
                 UNIQUE(subject_id, chapter_name)
             )
         """)
+        # default values -> difficulty = EASY, is_done = 0 (false)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS questions(
                 question_id INT AUTO_INCREMENT PRIMARY KEY,
                 subject_id INT NOT NULL,
                 chapter_id INT NOT NULL,
-                question_text TEXT NOT NULL,
+                question_text VARCHAR(500) NOT NULL UNIQUE,
                 answer_text LONGTEXT,
                 difficulty VARCHAR(20) DEFAULT 'EASY',
+                is_done TINYINT(1) DEFAULT 0,
                 FOREIGN KEY(subject_id) REFERENCES subjects(subject_id),
                 FOREIGN KEY(chapter_id) REFERENCES chapters(chapter_id)
             )
         """)
+        # default values -> task_priority = priority 3 (LOW)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS todo(
                 task_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -117,6 +121,7 @@ def create_tables():
                 task_priority VARCHAR(20) DEFAULT 'P3 (LOW)'
             )
         """)
+        # default values -> current_theme = LIGHT, xp = 0 (xp is updated only when question is done or deleted)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_data(
                 user_data_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -176,16 +181,20 @@ def create_default_user(): # table for storing theme data and xp levels
 # so only if create_database returns true then we run it and other functions
 
 def initialize_database():
-    print("===================================")
-    print("Initializing Aristeia Database...")
-    print("===================================")
+    print("+-----------------------------------+")
+    print("| Initializing Aristeia DB...       |")
+    print("+-----------------------------------+")
     if create_database(): # checks if the function is truthy
         create_tables()
         insert_default_subjects_and_chapters()
         create_default_user()
-    print("===================================")
-    print("Success.")
-    print("===================================")
+        # run only if no Qs exist
+        conn = get_database_connection()
+        if conn and not conn.cursor().execute("SELECT 1 FROM questions LIMIT 1") or not conn.cursor().fetchone(): # fetches the first row, if no rows then load default questions
+            load_default_questions() # load  default Qs into the db
+    print("+-----------------------------------+")
+    print("| Setup successful.                 |")
+    print("+-----------------------------------+")
 
 # CRUD for Questions 
 # ADD questions
@@ -214,13 +223,13 @@ def add_question(sub_name, ch_name, q, a, diff): # here a: answer column is null
         # update xp (we dont make new rows, only update the one and only one row in the user_data table)
         # to calculate xp we use simple logic based on the difficulty of the added question.
 
-        xp_gain = 1 # default difficulty is EASY ie +1 xp
-        if diff.upper() == "MODERATE": xp_gain = 3
-        elif diff.upper() == "HARD": xp_gain = 5
-        cursor.execute("UPDATE user_data SET xp = xp + %s WHERE user_data_id = 1", (xp_gain,))
+        # xp_gain = 1 # default difficulty is EASY ie +1 xp
+        # if diff.upper() == "MODERATE": xp_gain = 3
+        # elif diff.upper() == "HARD": xp_gain = 5
+        # cursor.execute("UPDATE user_data SET xp = xp + %s WHERE user_data_id = 1", (xp_gain,))
         
-        # reflect the changes after DML
-        conn.commit() 
+        
+        conn.commit() # reflect the changes after DML
         return True # all the processes ran successfully
     except Error as e:
         if conn: conn.rollback() # FIX: undo partial inserts if things break midway
@@ -244,7 +253,7 @@ def get_questions_by_chapter(ch_name):
         # order of working: first we natural join the tables, then select the columns of the conditioned chapter, then fetchall() to get all the questions of that chapter
         cursor.execute("""
             SELECT q.question_id as id, s.subject_name as sub, c.chapter_name as ch,
-                   q.question_text as q, q.answer_text as a, q.difficulty as diff
+                   q.question_text as q, q.answer_text as a, q.difficulty as diff, q.is_done
             FROM questions q
             NATURAL JOIN subjects s
             NATURAL JOIN chapters c
@@ -360,11 +369,16 @@ def delete_question(q_id): # to permanently delete the question
         
         # update xp (we dont make new rows, only update the one and only one row in the user_data table)
         # to calculate xp we use simple logic based on the difficulty of the added question.
-
         xp_loss = 1 # default difficulty is EASY ie -1 xp
         if diff.upper() == "MODERATE": xp_loss = 3 
         elif diff.upper() == "HARD": xp_loss = 5 
-        cursor.execute("UPDATE user_data SET xp = xp - %s WHERE user_data_id = 1", (xp_loss,)) # loss as argument
+        
+        # we use IF() function to ensure that xp doesnt go below 0, if so then set it to 0
+        cursor.execute("""
+            UPDATE user_data 
+            SET xp = IF(xp < %s, 0, xp - %s) 
+            WHERE user_data_id = 1
+        """, (xp_loss, xp_loss)) # loss as argument
         
         conn.commit() # reflect the change
         return True # success
@@ -376,9 +390,47 @@ def delete_question(q_id): # to permanently delete the question
         if cursor: cursor.close() # clean up (if curson is truthy)
         if conn: conn.close()   # clean up (if curson is truthy)
 
-# CRUD for Tasks
+# to update xp based on toggle btn (old logic was to update on upload)
+def toggle_question_status(q_id, is_done, diff):
+    conn = get_database_connection()
+    if not conn: return False # exit if no conn
+    cursor = None 
+    try:
+        cursor = conn.cursor()
+        
+        # 1 means True (done), 0 means false (undone)
+        status_val = 1 if is_done else 0 # means -> if is_done is True then its value = 1, else 0
+        cursor.execute("UPDATE questions SET is_done = %s WHERE question_id = %s AND is_done != %s", (status_val, q_id, status_val))
+        
+        # simple xp logic based on the difficulty of added question.
+        xp_val = 1 # default diff is EASY ie 1xp
+        if diff.upper() == "MODERATE": xp_val = 3 
+        elif diff.upper() == "HARD": xp_val = 5 
+        
+        if is_done:
+            # question done -> add xp
+            if cursor.rowcount > 0:
+                cursor.execute("UPDATE user_data SET xp = xp + %s WHERE user_data_id = 1", (xp_val,))
+        else:
+            # question unchecked -> remove xp (no -negatives)
+            if cursor.rowcount > 0:
+                cursor.execute("""
+                    UPDATE user_data 
+                    SET xp = IF(xp < %s, 0, xp - %s) 
+                    WHERE user_data_id = 1
+                """, (xp_val, xp_val))
+            
+        conn.commit() # reflect the change
+        return True # success
+    except Exception as e:
+        if conn: conn.rollback() # undo changes if anything fails
+        print("Error toggling question status:", e)
+        return False # failed
+    finally:
+        if cursor: cursor.close() # clean up
+        if conn: conn.close()   # clean up
 
-# 
+# CRUD for Tasks
 def get_tasks(): # to get all the added tasks to render them in the ui (as a list of dict)
     conn = get_database_connection()
     if not conn: return [] # empty list : no tasks
