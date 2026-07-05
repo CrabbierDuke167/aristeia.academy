@@ -1,8 +1,9 @@
 import sys
-from pathlib import Path
+from pathlib import Path 
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase, QIcon
 from PySide6.QtCore import qInstallMessageHandler, QtMsgType
+import loggin
 
 # tnx stackoverflow ....
 def silence_pixmap_errors(msg_type: QtMsgType, context, message: str):
@@ -11,6 +12,7 @@ def silence_pixmap_errors(msg_type: QtMsgType, context, message: str):
     print(message)  # Keeps other errors visible
 
 qInstallMessageHandler(silence_pixmap_errors)
+logging.getLogger('matplotlib.font_manager').setLevel(logging.ERROR) # supress font warning
 
 from frontPage import AristeiaWindow
 from database import initialize_database # import the initialize_database function from database python file

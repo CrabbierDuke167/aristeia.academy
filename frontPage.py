@@ -126,9 +126,31 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def handle_search(self):
         query = self.inp_search.text().strip() # grab the text from QLineEdit (search bar)
         if not query: return # exit if falsey value
-        results = db.search_questions(query) # calls the search question fn
-        self.display_questions_list(results, title=f"SEARCH RESULTS: '{query}'")
-        self.inp_search.clear() # clear the search bar after searching
+            
+        # was lwk frozen , loading screen mssg
+        box = QLabel("WE ARE WORKING ON IT . . .", self)
+        box.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        box.setWindowModality(Qt.ApplicationModal) # locks screen interactions while visible
+        box.setAlignment(Qt.AlignCenter)
+        box.resize(500, 160)
+        box.setStyleSheet("background: #00FFFF; border: 10px solid #000; font: 700 24px 'Space Grotesk'; color: #000;")
+        box.show()
+        QCoreApplication.processEvents() # box must render before db fn is called, or it will freeze
+        
+        try: # search logic
+            results = db.search_questions(query) # calls the search question fn
+            self.display_questions_list(results, title=f"SEARCH RESULTS: '{query}'")
+            self.inp_search.clear() # clear the search bar after searching
+            
+            QCoreApplication.processEvents() # forces bg question cards to paint first
+            
+            box.setText("SUCCESS: SEARCH COMPLETED!")
+            box.setStyleSheet("background: #00FF66; border: 10px solid #000; font: 700 24px 'Space Grotesk'; color: #000;")
+        except Exception as e:
+            box.setText(f"ERROR: {str(e).upper()}")
+            box.setStyleSheet("background: #FF3366; border: 10px solid #000; font: 700 24px 'Space Grotesk'; color: #000;")
+        finally:
+            QTimer.singleShot(1000, box.close) # auto-nukes the block exactly 1s after render
 
     # charts and graphs set up
     def setup_dashboard_charts(self):
