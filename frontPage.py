@@ -1,3 +1,9 @@
+# ----------------------------------------------------------
+# Aristeia Academy
+# GPL-3.0 Licensed
+# See LICENSE for details.
+# ----------------------------------------------------------
+
 import sys
 import json
 import os
@@ -11,7 +17,7 @@ from matplotlib.figure import Figure # placeholder figure/chart for no data stat
 
 from PySide6.QtWidgets import (QApplication, QMainWindow, QPushButton, QFrame, QLabel,
                                QHBoxLayout, QVBoxLayout, QSizePolicy, QColorDialog, QSpacerItem, QDialog)
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QRect, QTimer
+from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QRect, QTimer,QCoreApplication
 from PySide6.QtGui import QFont, QCursor, QColor
 
 # Import elements and styles from ui_index
@@ -21,7 +27,7 @@ from ui_index import (Ui_MainWindow, add_shadow, BASE_BTN_STYLE, INPUT_STYLE,
 # Import DB functions from database.py
 import database as db
 
-# Matplotlib Canvas Wrapper
+# Matplotlib Canvas Wrapper (Inspired by examples from the Matplotlib documentation)
 class MplCanvas(FigureCanvasQTAgg): # to reduce line of codes
     """Transparent Matplotlib canvas, removed its lwk poor default bg."""
     def __init__(self, parent=None, width=5, height=3.5, dpi=100):
@@ -572,7 +578,7 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
             self.anim.setEndValue(end_rect)
             self.anim.setEasingCurve(QEasingCurve.InExpo)
             self.anim.finished.connect(self.answer_drawer.hide) # hide the drawer on closing
-            self.anim.finished.connect(self._refresh_drawer_parent) # call fn to update the page underneath as the drawer closes
+            #self.anim.finished.connect(self._refresh_drawer_parent) # call fn to update the page underneath as the drawer closes
             
             self.update_qotd_display()
             self.update_xp_bar() # xp bug fixed yehh
@@ -729,10 +735,10 @@ class AristeiaWindow(QMainWindow, Ui_MainWindow):
     def apply_theme(self, theme_name):
         self.current_theme = theme_name # grabs current theme
         db.update_theme(theme_name) # update the user_data's current_theme column value
-        self.btn_nav_home.setStyleSheet("")
-        self.btn_nav_dashboard.setStyleSheet("")
-        self.btn_nav_schedule.setStyleSheet("")
-        self.btn_nav_settings.setStyleSheet("")
+        self.btn_nav_home.setStyleSheet("") # reset when called
+        self.btn_nav_dashboard.setStyleSheet("") # reset when called
+        self.btn_nav_schedule.setStyleSheet("") # reset when called
+        self.btn_nav_settings.setStyleSheet("")# reset when called
                 
         if theme_name == "LIGHT" or theme_name not in self.themes_data: # theme_data is a dict of all prebuilt themes from themes.json afte we parsed it
             # RESET TO DEFAULTS

@@ -1,3 +1,9 @@
+# ----------------------------------------------------------
+# Aristeia Academy
+# GPL-3.0 Licensed
+# See LICENSE for details.
+# ----------------------------------------------------------
+
 def load_default_questions():
     from database import get_database_connection # get the conn, we will insert from here
     

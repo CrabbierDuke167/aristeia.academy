@@ -1,3 +1,9 @@
+# ----------------------------------------------------------
+# Aristeia Academy
+# GPL-3.0 Licensed
+# See LICENSE for details.
+# ----------------------------------------------------------
+
 import sys
 from pathlib import Path 
 from PySide6.QtWidgets import QApplication
@@ -8,7 +14,7 @@ import logging
 # tnx stackoverflow ....
 def silence_pixmap_errors(msg_type: QtMsgType, context, message: str):
     if "Could not create pixmap" in message:
-        return  # Swallows it silently 
+        return  # swallows it silently 
     print(message)  # Keeps other errors visible
 
 qInstallMessageHandler(silence_pixmap_errors)

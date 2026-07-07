@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# complied from QtDesigner's human-made design
+# complied from QtDesigner [modified for design styles and ui fixs]
 import sys
 from pathlib import Path
 from PySide6.QtCore import (QCoreApplication, QSize, Qt, QRect, QPropertyAnimation, QEasingCurve)
@@ -318,7 +318,7 @@ class Ui_MainWindow(object):
 
         self.header_layout.addSpacing(20)
 
-        self.lbl_header_title = QLabel("WELCOME, It is going to be INTRESTING!")
+        self.lbl_header_title = QLabel("WELCOME, It is going to be INTERESTING!")
         self.lbl_header_title.setObjectName("ThemeText")
         self.lbl_header_title.setFont(QFont("Space Grotesk", 16, QFont.Bold))
         self.lbl_header_title.setStyleSheet("border: none; background: transparent;")
@@ -795,14 +795,14 @@ class Ui_MainWindow(object):
         lay_ab.setContentsMargins(25, 25, 25, 25)
         lay_ab.setSpacing(12)
 
-        lbl_ab_head = QLabel("ABOUT  'aristeia.accademy'")
+        lbl_ab_head = QLabel("ABOUT  'aristeia.academy'")
         lbl_ab_head.setObjectName("ThemeCardText")
         lbl_ab_head.setFont(QFont("Space Grotesk", 15, QFont.Black))
         lbl_ab_head.setStyleSheet("border: none; background: transparent;")
         txt_ab = QLabel(
             "<div style='word-spacing: 6px; line-height: 140%;'>"
-            "Aristeia Academy is an open-source, human-made study application tailored for CBSE Class 12 students.<br>"
-            "Built with Python, PySide6, and Qt Designer, it merges a bold <b>* Neo-Brutalist *</b> design with real-time theme switchability.<br>"
+            "Aristeia Academy is an open-source, study application tailored for CBSE Class 12 students.<br>"
+            "Built with Python, PySide6, Qt Designer, MySQL and matplotlib, it merges a bold <b>* Neo-Brutalist *</b> design with real-time theme switchability.<br>"
             "The application connects directly to a MySQL database via mysql.connector, offering full CRUD capabilities for managing<br>"
             "question banks and tasks, alongside native matplotlib data visualizations integrated straight into the dashboard.<br><br><br>"
             "Wishing you the best on your journey, from ABHINAV and DIYON"

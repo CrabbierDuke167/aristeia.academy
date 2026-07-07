@@ -1,3 +1,9 @@
+# ----------------------------------------------------------
+# Aristeia Academy
+# GPL-3.0 Licensed
+# See LICENSE for details.
+# ----------------------------------------------------------
+
 # BACKEND DATABASE LOGIC
 import mysql.connector
 from mysql.connector import Error # catch errors from mysql
@@ -193,7 +199,7 @@ def initialize_database():
         if conn and not conn.cursor().execute("SELECT 1 FROM questions LIMIT 1") or not conn.cursor().fetchone(): # fetches the first row, if no rows then load default questions
             load_default_questions() # load  default Qs into the db
     print("+-----------------------------------+")
-    print("| Setup successful.                 |")
+    print("| Initialization complete.          |")
     print("+-----------------------------------+")
 
 # CRUD for Questions 
@@ -219,15 +225,6 @@ def add_question(sub_name, ch_name, q, a, diff): # here a: answer column is null
             INSERT INTO questions(subject_id, chapter_id, question_text, answer_text, difficulty) 
             VALUES(%s, %s, %s, %s, %s)
         """, (sub_id, ch_id, q, a, diff)) # sub_id and ch_id attained with help of fetchone() . question , difficulty comes directly from user
-        
-        # update xp (we dont make new rows, only update the one and only one row in the user_data table)
-        # to calculate xp we use simple logic based on the difficulty of the added question.
-
-        # xp_gain = 1 # default difficulty is EASY ie +1 xp
-        # if diff.upper() == "MODERATE": xp_gain = 3
-        # elif diff.upper() == "HARD": xp_gain = 5
-        # cursor.execute("UPDATE user_data SET xp = xp + %s WHERE user_data_id = 1", (xp_gain,))
-        
         
         conn.commit() # reflect the changes after DML
         return True # all the processes ran successfully
